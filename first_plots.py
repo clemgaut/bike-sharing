@@ -4,45 +4,41 @@ Created on Thu Sep 18 16:37:10 2014
 
 @author: clemgaut
 """
-import csv
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
+import utils
 
-def get_hour(date):
-    """
-    Get the hour from a date formatted as dd/mm/yyyy hh:mm:ss
-    Return hh as an int
-    """
-    time = date.split(' ')[2]    
-    hour = time.split(':')[0]
-    
-    return int(hour)
+variables_to_plot = range(0, 9)
 
-variables_to_plot = range(1,8)
+head = ["hour", "season", "holiday", "workingday", "weather", "temp", "atemp", "humidity", "windspeed", "casual",
+        "registered", "count"]
+
+y_index = 11
+
 dim_plot = math.ceil(math.sqrt(len(variables_to_plot)))
 
+train_content = utils.get_data('train.csv')
 
-for index,variable_to_plot in enumerate(variables_to_plot):
+train_content = np.matrix(train_content)
+
+for index, variable_to_plot in enumerate(variables_to_plot):
     value_table = {}
-    csv_file = open('train.csv', 'rb')
-    train_content = csv.reader(csv_file)
-    head = train_content.next()
-    for row in train_content:
-        #increase count for the given variable value
-        key = int(float(row[variable_to_plot]))
+
+    column = np.ravel(train_content[:, variable_to_plot])
+
+    for key in column:
+        # increase count for the given variable value
         if key not in value_table.keys():
-            value_table[key] = int(row[-1])
+            value_table[key] = y_index
         else:
-            value_table[key] += int(row[-1])
+            value_table[key] += y_index
 
     plt.subplot(dim_plot, dim_plot, index+1)       
     plt.plot(value_table.keys(), value_table.values())
     plt.ylabel('Number of bike rentings')
     plt.xlabel(head[variable_to_plot])
     
-    csv_file.close()
-    
 plt.tight_layout()
 plt.show()
-        
